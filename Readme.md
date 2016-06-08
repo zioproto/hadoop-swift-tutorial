@@ -132,7 +132,7 @@ You should check the all the information to connect to swift are present.
   </property>
 ```
 
-You Hadoop distribution already contains a jar with the `org.apache.hadoop.fs.swift.snative.SwiftNativeFileSystem` class. You should find it at this location:
+Your Hadoop distribution already contains a jar with the `org.apache.hadoop.fs.swift.snative.SwiftNativeFileSystem` class. You should find it at this location:
 
     /usr/lib/hadoop/hadoop-2.7.1/share/hadoop/tools/lib/hadoop-openstack-2.7.1.jar
 
@@ -186,3 +186,18 @@ At the end you should be able to download your result from SWIFT
 
     swift ls mybigdatacontainer
     swift download mybigdatacontainer output_new_0/part-00000
+
+We conclude with a professional tip ! :) If you dont want to save your password in the file `/etc/hadoop/core-site.xml` in cleartext, you can insert the password in the commandline at every run.
+Remeber to put an empty space before the command ( `hadoop` in our case) so that the command will not be saved in your bash history.
+
+```
+ hadoop jar /usr/lib/hadoop/hadoop-2.7.1/share/hadoop/tools/lib/hadoop-streaming-2.7.1.jar \
+-D fs.swift.service.switchengines.password=mysecretsecretpassword \
+-input swift://mybigdatacontainer.switchengines/dcu.txt \
+-output swift:///mybigdatacontainer.switchengines/output_new_0 \
+-mapper mapper.py \
+-reducer reducer.py \
+-numReduceTasks 1
+```
+
+In general with this `-D` flag you can override any configuration from the `/etc/hadoop/core-site.xml`
