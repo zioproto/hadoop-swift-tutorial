@@ -183,5 +183,6 @@ hadoop jar /usr/lib/hadoop/hadoop-2.7.1/share/hadoop/tools/lib/hadoop-streaming-
 ```
 
 At the end you should be able to download your result from SWIFT
-    swift ls mybigdatacontainer 
+
+    swift ls mybigdatacontainer
     swift download mybigdatacontainer output_new_0/part-00000
