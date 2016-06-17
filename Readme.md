@@ -201,3 +201,104 @@ Remeber to put an empty space before the command ( `hadoop` in our case) so that
 ```
 
 In general with this `-D` flag you can override any configuration from the `/etc/hadoop/core-site.xml`
+
+## Use Openstack SWIFT to access a public dataset on SWITCHengines
+
+To get started with Public Datasets hosted on SWITCHengines we loaded the googlebooks-ngrams dataset: http://storage.googleapis.com/books/ngrams/books/datasetsv2.html
+The dataset is about 5Tb of zipped files.
+
+To write this part of the tutorial I read first this blog post:
+https://dbaumgartel.wordpress.com/2014/04/10/an-elastic-mapreduce-streaming-example-with-python-and-ngrams-on-aws/
+
+We are going to so something similar but using Openstack instead of Amazon EC2.
+
+We will analyze a part of the dataset to understand how many words that start with the letter X appeared for the first time in the year 1999.
+Check the code in the files `mapper-ngrams.py` and `reducer-ngrams.py`.
+
+To configure Hadoop to access the dataset, add a new block in the `core-site.xml` config file.
+```
+<property>
+   <name>fs.swift.service.datasets.auth.url</name>
+   <value>https://keystone.cloud.switch.ch:5000/v2.0/tokens</value>
+ </property>
+ <property>
+   <name>fs.swift.service.datasets.auth.endpoint.prefix</name>
+   <value>/AUTH_</value>
+ </property>
+ <property>
+   <name>fs.swift.service.datasets.http.port</name>
+   <value>443</value>
+ </property>
+
+ <property>
+   <name>fs.swift.service.datasets.region</name>
+   <value>LS</value>
+ </property>
+ <property>
+   <name>fs.swift.service.datasets.public</name>
+   <value>true</value>
+ </property>
+ <property>
+   <name>fs.swift.service.datasets.tenant</name>
+   <value>datasets_readonly</value>
+ </property>
+ <property>
+   <name>fs.swift.service.switchengines.username</name>
+   <value>SWITCHengines-username</value>
+ </property>
+ <property>
+   <name>fs.swift.service.switchengines.password</name>
+   <value>secret</value>
+ </property>
+```
+
+*Make sure SWITCHengines admins added your user to the tenant datasets_readonly before trying the next steps. Contact support if unsure about this.*
+
+Now we should be able to download this file:
+
+    export OS_USERNAME=SWITCHengines-username
+    export OS_PASSWORD=secret
+    export OS_TENANT_NAME=datasets_readonly
+    export OS_AUTH_URL=https://keystone.cloud.switch.ch:5000/v2.0
+    export OS_REGION_NAME=LS
+    swift download  googlebooks-ngrams-gz-swift eng/googlebooks-eng-all-1gram-20120701-x.gz
+
+Let's check if our data pipeline works before using Hadoop for this map reduce example.
+
+    time zcat googlebooks-eng-all-1gram-20120701-x.gz | ./mapper-ngrams.py | sort -k1,1 | ./reducer-ngrams.py | sort -k2,2n
+
+The result should be a set with the words that appeared for the first time in the year 1999 and that start with the letter X and the number of occurences.
+
+Because we limited our analisys to a single file of 14Mb we are still able to check the pipeline without using Hadoop.
+
+Now we will do the same using Hadoop, reading the single file `googlebooks-eng-all-1gram-20120701-x.gz` from the swift container with the googlebooks-ngrams dataset and writing the result in swift in a container in our own tenant.
+Note that Hadoop is able to understand automatically that the input file is in zip format, and it will decompress it without any special configuration.
+
+```
+hadoop jar /usr/lib/hadoop/hadoop-2.7.1/share/hadoop/tools/lib/hadoop-streaming-2.7.1.jar \
+-D fs.swift.service.switchengines.password=mysecretsecretpassword \
+-input swift://googlebooks-ngrams-gz-swift.datasets/eng/googlebooks-eng-all-1gram-20120701-x.gz \
+-output swift://results.switchengines/testnumber1 \
+-mapper mapper-ngrams.py \
+-reducer reducer-ngrams.py  \
+-numReduceTasks 1
+```
+
+When Hadoop finishes the processing you can download the results:
+
+    swift download results testnumber1/part-00000
+
+The result should be the same as the one you observed when testing the data pipeline.
+
+Now lets try with the file eng/googlebooks-eng-all-0gram-20120701-a.gz that is about 15Gb
+
+    ```
+    hadoop jar /usr/lib/hadoop/hadoop-2.7.1/share/hadoop/tools/lib/hadoop-streaming-2.7.1.jar \
+    -D fs.swift.service.switchengines.password=mysecretsecretpassword \
+    -D fs.swift.service.datasets.password=mysecretsecretpassword \
+    -input swift://googlebooks-ngrams-gz-swift.datasets/eng/googlebooks-eng-all-0gram-20120701-a.gz \
+    -output swift://results.switchengines/testnumber2 \
+    -mapper mapper-ngrams.py \
+    -reducer reducer-ngrams.py  \
+    -numReduceTasks 1
+    ```
