@@ -44,7 +44,7 @@ You can check that the jar works launching it and printing the help.
 
 Now we can run a map reduce job to count the words in the file we previously uploaded:
 ```
-hadoop jar hadoop jar /usr/lib/hadoop/hadoop-2.7.1/share/hadoop/tools/lib/hadoop-streaming-2.7.1.jar  \
+hadoop jar /usr/lib/hadoop/hadoop-2.7.1/share/hadoop/tools/lib/hadoop-streaming-2.7.1.jar  \
    -input file.txt \
    -output output_new_0 \
    -mapper mapper.py \
@@ -160,7 +160,13 @@ hadoop classpath
 
 Let's now create a container:
 
-    source ~/switchengines-rc
+    export OS_USERNAME=SWITCHEngines-username
+    export OS_PASSWORD=secret
+    export OS_TENANT_NAME=SWITCHEngines-tenant
+    export OS_AUTH_URL=https://keystone.cloud.switch.ch:5000/v2.0
+    export OS_REGION_NAME=LS
+    # you can put the export lines in a file called ~/switchengines-rc and later just source it:
+    # source ~/switchengines-rc
     swift post mybigdatacontainer
 
 and use Hadoop to copy data into it:
