@@ -136,11 +136,12 @@ Your Hadoop distribution already contains a jar with the `org.apache.hadoop.fs.s
 
     /usr/lib/hadoop/hadoop-2.7.1/share/hadoop/tools/lib/hadoop-openstack-2.7.1.jar
 
-The Openstack Sahara project provides a more updated version of this jar. To update just overwrite the file.
+The Openstack Sahara project provides a more updated version of this jar. To update just overwrite the file with the one we provide in this repository.
 ```
-wget http://sahara-files.mirantis.com/hadoop-swift/hadoop-openstack-latest.jar
-cp hadoop-openstack-latest.jar     /usr/lib/hadoop/hadoop-2.7.1/share/hadoop/tools/lib/hadoop-openstack-2.7.1.jar
+cp hadoop-openstack-2.7.1-331589-2.jar /usr/lib/hadoop/hadoop-2.7.1/share/hadoop/tools/lib/hadoop-openstack-2.7.1.jar
 ```
+
+This jar file is compiled from the source code in this openstack review: https://review.openstack.org/#/c/331589/ (patchset 2)
 
 You should make sure this jar file is in your classpath, otherwise you will get the `java.lang.RuntimeException: java.lang.ClassNotFoundException: Class org.apache.hadoop.fs.swift.snative.SwiftNativeFileSystem not found`
 
