@@ -49,9 +49,13 @@ hadoop jar /usr/lib/hadoop/hadoop-2.7.1/share/hadoop/tools/lib/hadoop-streaming-
    -output output_new_0 \
    -mapper mapper.py \
    -reducer reducer.py \
+   -file mapper.py \
+   -file reducer.py \
    -numReduceTasks 1
 ```
 Please remember the -input and -output files are on the HDFS storage and not in your local disk.
+The files passed with the `-file` argument are instead on the local disk, and they are called so that the master node copies these
+files on all the slaves nodes automatically.
 
 Also, `output_new_0` is a folder. If the folder already exist on HDFS Hadoop will refuse to start,
 because it will not overwrite existing data.
@@ -71,6 +75,8 @@ hadoop jar hadoop jar /usr/lib/hadoop/hadoop-2.7.1/share/hadoop/tools/lib/hadoop
    -output output_new_0 \
    -mapper mapper.py \
    -reducer reducer.py \
+   -file mapper.py \
+   -file reducer.py \
    -numReduceTasks 1
 ```
 
@@ -186,6 +192,8 @@ hadoop jar /usr/lib/hadoop/hadoop-2.7.1/share/hadoop/tools/lib/hadoop-streaming-
 -output swift:///mybigdatacontainer.switchengines/output_new_0 \
 -mapper mapper.py \
 -reducer reducer.py \
+-file mapper.py \
+-file reducer.py \
 -numReduceTasks 1
 ```
 
@@ -204,6 +212,8 @@ Remeber to put an empty space before the command ( `hadoop` in our case) so that
 -output swift:///mybigdatacontainer.switchengines/output_new_0 \
 -mapper mapper.py \
 -reducer reducer.py \
+-file mapper.py \
+-file reducer.py \
 -numReduceTasks 1
 ```
 
@@ -288,6 +298,8 @@ hadoop jar /usr/lib/hadoop/hadoop-2.7.1/share/hadoop/tools/lib/hadoop-streaming-
 -output swift://results.switchengines/testnumber1 \
 -mapper mapper-ngrams.py \
 -reducer reducer-ngrams.py  \
+-file mapper-ngrams.py \
+-file reducer-ngrams.py  \
 -numReduceTasks 1
 ```
 
@@ -297,15 +309,33 @@ When Hadoop finishes the processing you can download the results:
 
 The result should be the same as the one you observed when testing the data pipeline.
 
-Now lets try with the file eng/googlebooks-eng-all-0gram-20120701-a.gz that is about 15Gb
+Now lets try with the file eng/googlebooks-eng-all-1gram-20120701-a.gz that is about 300Mb
 
     ```
     hadoop jar /usr/lib/hadoop/hadoop-2.7.1/share/hadoop/tools/lib/hadoop-streaming-2.7.1.jar \
     -D fs.swift.service.switchengines.password=mysecretsecretpassword \
     -D fs.swift.service.datasets.password=mysecretsecretpassword \
-    -input swift://googlebooks-ngrams-gz-swift.datasets/eng/googlebooks-eng-all-0gram-20120701-a.gz \
+    -file mapper-ngrams.py \
+    -file reducer-ngrams.py \
+    -input swift://googlebooks-ngrams-gz-swift.datasets/eng/googlebooks-eng-all-1gram-20120701-a.gz \
     -output swift://results.switchengines/testnumber2 \
     -mapper mapper-ngrams.py \
     -reducer reducer-ngrams.py  \
     -numReduceTasks 1
     ```
+
+When the processing is finished you will be able to download the output from swift
+
+    swift download results testnumber2/part-00000
+
+## Final troubleshooting notes
+
+If you need to debug you can enable the Hadoop debug setting the `HADOOP_ROOT_LOGGER` variable in this way:
+
+    HADOOP_ROOT_LOGGER=DEBUG,console hadoop fs -ls swift://googlebooks-ngrams-gz-swift.datasets/
+
+If you are doing some tests with your own swift installation, using a self signed SSL certificate, this command explains how to alter the Java keystgore used by Hadoop
+
+    keytool -import -noprompt -trustcacerts -alias garr -file /home/ubuntu/DigiCertCA.crt -keystore /usr/lib/java/jdk1.8.0_74/jre/lib/security/cacerts`
+
+with default password `changeit` for the Java Key Store
