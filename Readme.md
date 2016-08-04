@@ -331,6 +331,165 @@ When the processing is finished you will be able to download the output from swi
 
     swift download results testnumber2/part-00000
 
+## Use S3 to access a public dataset on SWITCHengines
+
+SWITCHengines also provides a object storage with S3 api. Usually the `s3a` driver is already installed in Hadoop, you will not need to add a jar file for this setup.
+
+Because the config parameters are many, we suggest to leave alone the `core-site.xml` global file. Create a file named `s3.xml` , pay attention to the first three properties that you will most likely want to change. The rest should be cut and paste. Make sure you are familiar with this reference documentation: https://help.switch.ch/engines/documentation/s3-like-object-storage/
+
+Here is the `s3.xml` content:
+
+```
+<configuration>
+<property>
+  <name>fs.s3a.access.key</name>
+  <description>AWS access key ID. Omit for Role-based authentication.</description>
+  <value>Your_secret_value</value>
+</property>
+
+<property>
+  <name>fs.s3a.secret.key</name>
+  <description>AWS secret key. Omit for Role-based authentication.</description>
+  <value>Your_secret_value</value>
+</property>
+
+<property>
+  <name>fs.s3a.endpoint</name>
+  <description>AWS S3 endpoint to connect to. An up-to-date list is
+    provided in the AWS Documentation: regions and endpoints. Without this
+    property, the standard region (s3.amazonaws.com) is assumed.
+    For SWITCHengines possible values are os.unil.cloud.switch.ch
+    or os.zhdk.cloud.switch.ch
+  </description>
+  <value>os.unil.cloud.switch.ch</value>
+</property>
+
+<property>
+  <name>fs.s3a.connection.maximum</name>
+  <value>15</value>
+  <description>Controls the maximum number of simultaneous connections to S3.</description>
+</property>
+
+<property>
+  <name>fs.s3a.connection.ssl.enabled</name>
+  <value>true</value>
+  <description>Enables or disables SSL connections to S3.</description>
+</property>
+
+
+<property>
+  <name>fs.s3a.attempts.maximum</name>
+  <value>10</value>
+  <description>How many times we should retry commands on transient errors.</description>
+</property>
+
+<property>
+  <name>fs.s3a.connection.establish.timeout</name>
+  <value>5000</value>
+  <description>Socket connection setup timeout in milliseconds.</description>
+</property>
+
+<property>
+  <name>fs.s3a.connection.timeout</name>
+  <value>50000</value>
+  <description>Socket connection timeout in milliseconds.</description>
+</property>
+
+<property>
+  <name>fs.s3a.paging.maximum</name>
+  <value>5000</value>
+  <description>How many keys to request from S3 when doing
+     directory listings at a time.</description>
+</property>
+
+<property>
+  <name>fs.s3a.threads.max</name>
+  <value>256</value>
+  <description> Maximum number of concurrent active (part)uploads,
+  which each use a thread from the threadpool.</description>
+</property>
+<property>
+  <name>fs.s3a.threads.core</name>
+  <value>15</value>
+  <description>Number of core threads in the threadpool.</description>
+</property>
+
+<property>
+  <name>fs.s3a.threads.keepalivetime</name>
+  <value>60</value>
+  <description>Number of seconds a thread can be idle before being
+    terminated.</description>
+</property>
+<property>
+  <name>fs.s3a.max.total.tasks</name>
+  <value>1000</value>
+  <description>Number of (part)uploads allowed to the queue before
+  blocking additional uploads.</description>
+</property>
+
+<property>
+  <name>fs.s3a.multipart.size</name>
+  <value>104857600</value>
+  <description>How big (in bytes) to split upload or copy operations up into.</description>
+</property>
+
+<property>
+  <name>fs.s3a.multipart.threshold</name>
+  <value>2147483647</value>
+  <description>Threshold before uploads or copies use parallel multipart operations.</description>
+</property>
+
+<property>
+  <name>fs.s3a.acl.default</name>
+  <description>Set a canned ACL for newly created and copied objects. Value may be private,
+     public-read, public-read-write, authenticated-read, log-delivery-write,
+     bucket-owner-read, or bucket-owner-full-control.</description>
+</property>
+
+<property>
+  <name>fs.s3a.multipart.purge</name>
+  <value>false</value>
+  <description>True if you want to purge existing multipart uploads that may not have been
+     completed/aborted correctly</description>
+</property>
+
+<property>
+  <name>fs.s3a.multipart.purge.age</name>
+  <value>86400</value>
+  <description>Minimum age in seconds of multipart uploads to purge</description>
+</property>
+
+<property>
+  <name>fs.s3a.buffer.dir</name>
+  <value>${hadoop.tmp.dir}/s3a</value>
+  <description>Comma separated list of directories that will be used to buffer file
+    uploads to. No effect if fs.s3a.fast.upload is true.</description>
+</property>
+
+<property>
+  <name>fs.s3a.impl</name>
+  <value>org.apache.hadoop.fs.s3a.S3AFileSystem</value>
+  <description>The implementation class of the S3A Filesystem</description>
+</property>
+</configuration>
+```
+
+Now lets make a new example where we read the data from S3, and we store the result in HDFS.
+
+We can use the `-conf` flag, to read the S3 configuration from the external file. This would be the final command:
+
+    ```
+    hadoop jar /usr/lib/hadoop/hadoop-2.7.1/share/hadoop/tools/lib/hadoop-streaming-2.7.1.jar \
+    -conf ~/s3.xml
+    -file mapper-ngrams.py \
+    -file reducer-ngrams.py \
+    -input s3a://googlebooks-ngrams-gz/eng/googlebooks-eng-all-1gram-20120701-a.gz \
+    -output myhdfsfolder \
+    -mapper mapper-ngrams.py \
+    -reducer reducer-ngrams.py  \
+    -numReduceTasks 1
+    ```
+
 ## Final troubleshooting notes
 
 If you need to debug you can enable the Hadoop debug setting the `HADOOP_ROOT_LOGGER` variable in this way:
