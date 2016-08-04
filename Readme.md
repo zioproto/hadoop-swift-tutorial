@@ -314,18 +314,18 @@ The result should be the same as the one you observed when testing the data pipe
 
 Now lets try with the file eng/googlebooks-eng-all-1gram-20120701-a.gz that is about 300Mb
 
-    ```
-    hadoop jar /usr/lib/hadoop/hadoop-2.7.1/share/hadoop/tools/lib/hadoop-streaming-2.7.1.jar \
-    -D fs.swift.service.switchengines.password=mysecretsecretpassword \
-    -D fs.swift.service.datasets.password=mysecretsecretpassword \
-    -file mapper-ngrams.py \
-    -file reducer-ngrams.py \
-    -input swift://googlebooks-ngrams-gz-swift.datasets/eng/googlebooks-eng-all-1gram-20120701-a.gz \
-    -output swift://results.switchengines/testnumber2 \
-    -mapper mapper-ngrams.py \
-    -reducer reducer-ngrams.py  \
-    -numReduceTasks 1
-    ```
+```
+hadoop jar /usr/lib/hadoop/hadoop-2.7.1/share/hadoop/tools/lib/hadoop-streaming-2.7.1.jar \
+-D fs.swift.service.switchengines.password=mysecretsecretpassword \
+-D fs.swift.service.datasets.password=mysecretsecretpassword \
+-file mapper-ngrams.py \
+-file reducer-ngrams.py \
+-input swift://googlebooks-ngrams-gz-swift.datasets/eng/googlebooks-eng-all-1gram-20120701-a.gz \
+-output swift://results.switchengines/testnumber2 \
+-mapper mapper-ngrams.py \
+-reducer reducer-ngrams.py  \
+-numReduceTasks 1
+```
 
 When the processing is finished you will be able to download the output from swift
 
@@ -478,17 +478,17 @@ Now lets make a new example where we read the data from S3, and we store the res
 
 We can use the `-conf` flag, to read the S3 configuration from the external file. This would be the final command:
 
-    ```
-    hadoop jar /usr/lib/hadoop/hadoop-2.7.1/share/hadoop/tools/lib/hadoop-streaming-2.7.1.jar \
-    -conf ~/s3.xml
-    -file mapper-ngrams.py \
-    -file reducer-ngrams.py \
-    -input s3a://googlebooks-ngrams-gz/eng/googlebooks-eng-all-1gram-20120701-a.gz \
-    -output myhdfsfolder \
-    -mapper mapper-ngrams.py \
-    -reducer reducer-ngrams.py  \
-    -numReduceTasks 1
-    ```
+```
+hadoop jar /usr/lib/hadoop/hadoop-2.7.1/share/hadoop/tools/lib/hadoop-streaming-2.7.1.jar \
+-conf ~/s3.xml
+-file mapper-ngrams.py \
+-file reducer-ngrams.py \
+-input s3a://googlebooks-ngrams-gz/eng/googlebooks-eng-all-1gram-20120701-a.gz \
+-output myhdfsfolder \
+-mapper mapper-ngrams.py \
+-reducer reducer-ngrams.py  \
+-numReduceTasks 1
+```
 
 ## Final troubleshooting notes
 
