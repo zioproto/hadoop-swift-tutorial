@@ -480,7 +480,7 @@ We can use the `-conf` flag, to read the S3 configuration from the external file
 
 ```
 hadoop jar /usr/lib/hadoop/hadoop-2.7.1/share/hadoop/tools/lib/hadoop-streaming-2.7.1.jar \
--conf ~/s3.xml
+-conf ~/s3.xml \
 -file mapper-ngrams.py \
 -file reducer-ngrams.py \
 -input s3a://googlebooks-ngrams-gz/eng/googlebooks-eng-all-1gram-20120701-a.gz \
