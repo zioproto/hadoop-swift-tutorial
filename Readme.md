@@ -37,14 +37,22 @@ Identify where is in your system the `hadoop-straming-<version>.jar` file. In ou
 
     /usr/lib/hadoop/hadoop-2.7.1/share/hadoop/tools/lib/hadoop-streaming-2.7.1.jar
 
+Or it could be at the following path in the hortonworks distribution.
+
+    /usr/hdp/2.4.2.0-258/hadoop-mapreduce/hadoop-streaming.jar
+
+We suggest to export a variable HS (Hadoop streaming) to use shorter commands
+
+    export HS=/usr/hdp/2.4.2.0-258/hadoop-mapreduce/hadoop-streaming.jar
+
 You can check that the jar works launching it and printing the help.
 
-    hadoop jar /usr/lib/hadoop/hadoop-2.7.1/share/hadoop/tools/lib/hadoop-streaming-2.7.1.jar --help
+    hadoop jar $HS --help
 
 
 Now we can run a map reduce job to count the words in the file we previously uploaded:
 ```
-hadoop jar /usr/lib/hadoop/hadoop-2.7.1/share/hadoop/tools/lib/hadoop-streaming-2.7.1.jar  \
+hadoop jar $HS  \
    -input file.txt \
    -output output_new_0 \
    -mapper mapper.py \
@@ -70,7 +78,7 @@ You can find the book the file `dcu.txt`.
 You have to upload the file to HDFS as you did for the previous file.
 
 ```
-hadoop jar hadoop jar /usr/lib/hadoop/hadoop-2.7.1/share/hadoop/tools/lib/hadoop-streaming-2.7.1.jar  \
+hadoop jar $HS  \
    -input dcu.txt \
    -output output_new_0 \
    -mapper mapper.py \
@@ -190,7 +198,7 @@ If everything worked you should see the file in SWIFT
 We are now ready to start the same map reduce job that we did on the HDFS example. We just need to specify that we want to read and write the data from SWIFT:
 
 ```
-hadoop jar /usr/lib/hadoop/hadoop-2.7.1/share/hadoop/tools/lib/hadoop-streaming-2.7.1.jar \
+hadoop jar $HS \
 -input swift://mybigdatacontainer.switchengines/dcu.txt \
 -output swift:///mybigdatacontainer.switchengines/output_new_0 \
 -mapper mapper.py \
@@ -209,7 +217,7 @@ We conclude with a professional tip ! :) If you dont want to save your password 
 Remeber to put an empty space before the command ( `hadoop` in our case) so that the command will not be saved in your bash history.
 
 ```
- hadoop jar /usr/lib/hadoop/hadoop-2.7.1/share/hadoop/tools/lib/hadoop-streaming-2.7.1.jar \
+ hadoop jar $HS \
 -D fs.swift.service.switchengines.password=mysecretsecretpassword \
 -input swift://mybigdatacontainer.switchengines/dcu.txt \
 -output swift:///mybigdatacontainer.switchengines/output_new_0 \
@@ -315,7 +323,7 @@ The result should be the same as the one you observed when testing the data pipe
 Now lets try with the file eng/googlebooks-eng-all-1gram-20120701-a.gz that is about 300Mb
 
 ```
-hadoop jar /usr/lib/hadoop/hadoop-2.7.1/share/hadoop/tools/lib/hadoop-streaming-2.7.1.jar \
+hadoop jar $HS \
 -D fs.swift.service.switchengines.password=mysecretsecretpassword \
 -D fs.swift.service.datasets.password=mysecretsecretpassword \
 -file mapper-ngrams.py \
@@ -479,7 +487,7 @@ Now lets make a new example where we read the data from S3, and we store the res
 We can use the `-conf` flag, to read the S3 configuration from the external file. This would be the final command:
 
 ```
-hadoop jar /usr/lib/hadoop/hadoop-2.7.1/share/hadoop/tools/lib/hadoop-streaming-2.7.1.jar \
+hadoop jar $HS \
 -conf ~/s3.xml \
 -file mapper-ngrams.py \
 -file reducer-ngrams.py \
