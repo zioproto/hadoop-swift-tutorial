@@ -106,11 +106,10 @@ Check this configuration file:
 You should check the all the information to connect to swift are present.
 
 ```
-<property>
-    <name>fs.swift.impl</name
- <value>org.apache.hadoop.fs.swift.snative.SwiftNativeFileSystem</value>
-</property>
-
+ <property>
+    <name>fs.swift.impl</name>
+    <value>org.apache.hadoop.fs.swift.snative.SwiftNativeFileSystem</value>
+ </property>
  <property>
     <name>fs.swift.service.switchengines.auth.url</name>
     <value>https://keystone.cloud.switch.ch:5000/v2.0/tokens</value>
@@ -123,7 +122,6 @@ You should check the all the information to connect to swift are present.
     <name>fs.swift.service.switchengines.http.port</name>
     <value>443</value>
   </property>
-
   <property>
     <name>fs.swift.service.switchengines.region</name>
     <value>LS</value>
