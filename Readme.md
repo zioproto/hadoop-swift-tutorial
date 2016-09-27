@@ -191,7 +191,7 @@ and use Hadoop to copy data into it:
 
 If everything worked you should see the file in SWIFT
 
-     swift ls mybigdatacontainer
+     swift list mybigdatacontainer
 
 We are now ready to start the same map reduce job that we did on the HDFS example. We just need to specify that we want to read and write the data from SWIFT:
 
