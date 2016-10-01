@@ -154,8 +154,8 @@ You can compile the jar on any Ubuntu Trusty as follows:
 ```
 git clone https://github.com/openstack/sahara-extra
 cd sahara-extra
-./tools/build-hadoop-openstack.sh 2.7.1
-cp  ./dist/hadoop-openstack/hadoop-openstack-2.7.1.jar /usr/lib/hadoop/hadoop-2.7.1/share/hadoop/tools/lib/hadoop-openstack-2.7.1.jar
+./tools/build-hadoop-openstack.sh 1 2.7.1
+cp  dist/hadoop-openstack/1/hadoop-openstack-2.7.1.jar /usr/lib/hadoop/hadoop-2.7.1/share/hadoop/tools/lib/hadoop-openstack-2.7.1.jar
 ```
 
 You should make sure this jar file is in your classpath, otherwise you will get the `java.lang.RuntimeException: java.lang.ClassNotFoundException: Class org.apache.hadoop.fs.swift.snative.SwiftNativeFileSystem not found`
